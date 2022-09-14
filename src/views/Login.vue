@@ -4,14 +4,9 @@
       <h2 class="ext-center text-2xl font-bold text-gray-800 mb-6">Practical Assessment | Nourishing Africa</h2>
       <h2 class="text-center text-xl font-bold text-gray-800 mb-6">Sign in to your dashboard</h2>
 
-      <div>
-       
-         
-      </div>
+      <div></div>
 
-      
-
-      <form class="space-y-4"  @submit.prevent="login">
+      <form class="space-y-4" @submit.prevent="login">
         <div class="relative text-gray-400">
           <span class="absolute inset-y-0 left-0 flex items-center pl-2">
             <svg
@@ -45,13 +40,10 @@
             "
             placeholder="Email address"
             required=""
-            v-bind:class="{ 'border-red-700': errors.email }"
-            v-model="email" />
-            <span
-                    v-if="errors.email"
-                    class="block text-sm text-red-700 mt-2"
-                    >{{ errors.email[0] }}</span
-                  >
+            v-bind:class="{ 'border-red-700': errors.email ?? '' }"
+            v-model="email"
+          />
+          <span v-if="errors.email" class="block text-sm text-red-700 mt-2">{{ errors.email[0] ?? '' }}</span>
         </div>
 
         <div class="relative text-gray-400">
@@ -87,8 +79,9 @@
               focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 focus:z-10
             "
             placeholder="Password"
-            v-bind:class="{ 'border-red-700': errors.password }"
-              v-model="password"  />
+            v-bind:class="{ 'border-red-700': errors.password ?? '' }"
+            v-model="password"
+          />
         </div>
 
         <div class="flex items-center justify-between">
@@ -99,11 +92,7 @@
               type="checkbox"
               class="h-4 w-4 text-indigo-600 focus:ring-0 border-gray-300 rounded cursor-pointer"
             />
-            <span
-                    v-if="errors.password"
-                    class="block text-sm text-red-700 mt-2"
-                    >{{ errors.password[0] }}</span
-                  >
+            <span v-if="errors.password" class="block text-sm text-red-700 mt-2">{{ errors.password[0] ?? '' }}</span>
             <label for="remember-me" class="ml-2 block text-sm text-gray-900 cursor-pointer"> Remember me </label>
           </div>
 
@@ -132,107 +121,98 @@
               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500
             "
           >
-          {{ btnText }}
+            {{ btnText }}
           </button>
         </div>
       </form>
 
       <div class="mt-2 text-sm text-gray-600">
-        Not registered yet? <a @click="$router.push({ name: 'register' })" class="font-medium text-indigo-600 hover:text-indigo-500">Create an account</a>
+        Not registered yet?
+        <a @click="$router.push({ name: 'register' })" class="font-medium text-indigo-600 hover:text-indigo-500"
+          >Create an account</a
+        >
       </div>
     </div>
   </div>
 </template>
 
 <script>
+import { defineComponent } from 'vue'
+import { useRouter } from 'vue-router'
+import Auth from '../Auth.js'
 
-  
-  import { defineComponent } from "vue";
-   import { useRouter } from 'vue-router';
-   import Auth from '../Auth.js';
-  
-  export default defineComponent({
-    
-    name: "HomePage",
-    components: {
-    
-    },
-      setup() {
-        const router = useRouter();
-        return { router };
-       
-      },
-    data: () => ({
-      errors: [],
-      disableButton: false,
-      loginFailed: false,
-     // admission_number: "",
-      btnText: "Login",
-      email:'',
-      password:'',
-    }),
-   created(){
-      this.checkIfAuth()
-   },
-  
-    methods: {
-  checkIfAuth(){
-  if(Auth.token){
-   this.$router.push('/');
-  }
+export default defineComponent({
+  name: 'HomePage',
+  components: {},
+  setup() {
+    const router = useRouter()
+    return { router }
   },
-     
-   login() {
-        // POST request using fetch with error handling
-        let url = import.meta.env.VITE_API_BASE_URL + 'login'
-        this.disableButton = true;
-        this.btnText = "Please wait...";
-        const requestOptions = {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            Accept: "application/json",
-          },
-          body: JSON.stringify({
-            email: this.email,
-            password: this.password,
-          }),
-        };
-        fetch(
-          url,
-          requestOptions
-        )
-          .then(async (response) => {
-            const data = await response.json();
-            this.disableButton = false;
-            this.btnText = "Login";
-            // check for error response
-            if (!response.ok) {
-              this.btnText = "Login";
-              console.log(data.errors);
-              this.errors = data.errors;
-              // get error message from body or default to response status
-              const error = (data && data.message) || response.status;
-              return Promise.reject(error);
-            }
-  
-             this.loginFailed=false
-             //console.log(data.data)
-            // console.log(data.data.access_token)
-            Auth.login(data.data.access_token,data.data); 
-           // alert('success')
-           this.$router.push('/');
-          })
-          .catch((error) => {
-            //alert(process.env.VUE_APP_API_BASE_URL);
-              this.btnText = "Login";
-            this.loginFailed=true
+  data: () => ({
+    errors: [],
+    disableButton: false,
+    loginFailed: false,
+    // admission_number: "",
+    btnText: 'Login',
+    email: '',
+    password: '',
+  }),
+  created() {
+    this.checkIfAuth()
+  },
+
+  methods: {
+    checkIfAuth() {
+      if (Auth.token) {
+        this.$router.push('/')
+      }
+    },
+
+    login() {
+      // POST request using fetch with error handling
+      let url = import.meta.env.VITE_API_BASE_URL + 'login'
+      this.disableButton = true
+      this.btnText = 'Please wait...'
+      const requestOptions = {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
+        body: JSON.stringify({
+          email: this.email,
+          password: this.password,
+        }),
+      }
+      fetch(url, requestOptions)
+        .then(async (response) => {
+          const data = await response.json()
+          this.disableButton = false
+          this.btnText = 'Login'
+          // check for error response
+          if (!response.ok) {
+            this.btnText = 'Login'
+            console.log(data.errors)
+            this.errors = data.errors
+            // get error message from body or default to response status
+            const error = (data && data.message) || response.status
+            return Promise.reject(error)
+          }
+
+          this.loginFailed = false
+
+          Auth.login(data.data.access_token, data.data)
+
+          this.$router.push('/')
+        })
+        .catch((error) => {
+          this.btnText = 'Login'
+          this.loginFailed = true
           alert(error)
-            this.errorMessage = error;
-            console.log(error);
-          });
-      },
-    }
-  });
-  </script>
-  
+          this.errorMessage = error
+          console.log(error)
+        })
+    },
+  },
+})
+</script>
